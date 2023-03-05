@@ -10,7 +10,7 @@ CREATE TABLE users (
     created_at TEXT NOT NULL
 );
 
-SELECT FROM * users;
+SELECT * FROM users;
 DROP TABLE users;
 
 CREATE TABLE posts (
@@ -27,7 +27,7 @@ CREATE TABLE posts (
     ON UPDATE CASCADE 
 );
 
-SELECT FROM * posts;
+SELECT * FROM posts;
 DROP TABLE posts;
 
 CREATE TABLE comments (
@@ -47,7 +47,7 @@ CREATE TABLE comments (
     ON UPDATE CASCADE 
 );
 
-SELECT FROM * comments;
+SELECT * FROM comments;
 DROP TABLE comments;
 
 CREATE TABLE post_upvote_downvote (
@@ -62,7 +62,7 @@ CREATE TABLE post_upvote_downvote (
         ON UPDATE CASCADE 
 );
 
-SELECT FROM * post_upvote_downvote;
+SELECT * FROM post_upvote_downvote;
 DROP TABLE post_upvote_downvote;
 
 CREATE TABLE comment_upvote_downvote (
@@ -77,5 +77,5 @@ CREATE TABLE comment_upvote_downvote (
         ON UPDATE CASCADE 
 );
 
-SELECT FROM * comment_upvote_downvote;
+SELECT * FROM comment_upvote_downvote;
 DROP TABLE comment_upvote_downvote;
