@@ -16,6 +16,13 @@ export interface LoginOutputDTO {
   password: string
 }
 
+export interface EditUserOutputDTO {
+  nickname: string,
+  email: string,
+  password: string,
+  avatar: string
+}
+
 export interface DeleteUserOutput {
   idToDelete: string, 
   token: string
@@ -104,6 +111,39 @@ export class UserDTO {
     const dto: LoginOutputDTO = {
       email,
       password
+    }
+
+    return dto
+  }
+
+  public editUserInputDTO(
+    nickname: unknown | undefined,
+    email: unknown | undefined,
+    password: unknown | undefined,
+    avatar: unknown | undefined
+  ): EditUserOutputDTO{
+
+    if (typeof nickname !== "string") {
+      throw new BadRequestError("ERROR: 'nickname' must be of type string.")
+    }
+
+    if (typeof email !== "string") {
+      throw new BadRequestError("ERROR: 'email' must be of type string.")
+    }
+
+    if (typeof password !== "string") {
+      throw new BadRequestError("ERROR: 'password' must be of type string.")
+    }
+
+    if (typeof avatar !== "string") {
+      throw new BadRequestError("ERROR: 'password' must be of type string.")
+    }
+
+    const dto: EditUserOutputDTO = {
+      nickname,
+      email,
+      password,
+      avatar
     }
 
     return dto
