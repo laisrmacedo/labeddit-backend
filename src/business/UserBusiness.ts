@@ -1,7 +1,8 @@
 import { UserDatabase, UserDB } from "../database/UserDatabase"
-import { GetUsersOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
+import { GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
+import { NotFoundError } from "../errors/NotFoundError";
 import { UnprocessableEntity } from "../errors/UnprocessableEntityError";
 import { User, USER_ROLES } from "../models/User";
 import { HashManager } from "../services/HashManager";
@@ -107,5 +108,32 @@ export class UserBusiness {
 
         return output
     }
+
+    public login = async (input: LoginOutputDTO): Promise<{}> => {
+        const { email, password } = input
+    
+        const userDB: UserDB | undefined = await this.userDatabase.findUserByEmail(email)
+        if (!userDB) {
+            throw new NotFoundError("ERROR: 'email' or 'password' are wrong.")
+        }
+
+        const passwordHash = await this.hashManager.compare(password, userDB.password)
+        if (!passwordHash) {
+          throw new BadRequestError("ERROR: 'email' or 'password' are wrong.")
+        }
+    
+    
+        const tokenPayload: TokenPayload = {
+          id: userDB.id,
+          nickname: userDB.nickname,
+          role: userDB.role
+        }
+    
+        const output = {
+          token: this.tokenManager.createToken(tokenPayload)
+        }
+    
+        return output
+      }
 
 }
