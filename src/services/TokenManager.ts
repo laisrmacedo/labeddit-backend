@@ -6,7 +6,7 @@ dotenv.config()
 
 export interface TokenPayload {
     id: string,
-    name: string,
+    nickname: string,
     role: USER_ROLES
 }
 
