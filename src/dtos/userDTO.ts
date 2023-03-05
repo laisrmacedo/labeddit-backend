@@ -17,13 +17,15 @@ export interface LoginOutputDTO {
 }
 
 export interface EditUserOutputDTO {
-  nickname: string,
-  email: string,
-  password: string,
-  avatar: string
+  idToEdit: string,
+  token: string,
+  nickname: string | undefined,
+  email: string | undefined,
+  password: string | undefined,
+  avatar: string | undefined
 }
 
-export interface DeleteUserOutput {
+export interface DeleteUserOutputDTO {
   idToDelete: string, 
   token: string
 }
@@ -117,29 +119,41 @@ export class UserDTO {
   }
 
   public editUserInputDTO(
-    nickname: unknown | undefined,
-    email: unknown | undefined,
-    password: unknown | undefined,
-    avatar: unknown | undefined
+    idToEdit: string,
+    token: string | undefined,
+    nickname: unknown,
+    email: unknown,
+    password: unknown,
+    avatar: unknown
   ): EditUserOutputDTO{
 
-    if (typeof nickname !== "string") {
+    if(idToEdit === ":id"){
+      throw new BadRequestError("ERROR: report the id of the user to be edited.")
+    }
+
+    if(!token){
+      throw new BadRequestError("ERROR: log in to edit the user.")
+    }
+
+    if (nickname !== undefined && typeof nickname !== "string") {
       throw new BadRequestError("ERROR: 'nickname' must be of type string.")
     }
 
-    if (typeof email !== "string") {
+    if (email !== undefined && typeof email !== "string") {
       throw new BadRequestError("ERROR: 'email' must be of type string.")
     }
 
-    if (typeof password !== "string") {
+    if (password !== undefined && typeof password !== "string") {
       throw new BadRequestError("ERROR: 'password' must be of type string.")
     }
 
-    if (typeof avatar !== "string") {
+    if (avatar !== undefined && typeof avatar !== "string") {
       throw new BadRequestError("ERROR: 'password' must be of type string.")
     }
 
     const dto: EditUserOutputDTO = {
+      idToEdit,
+      token,
       nickname,
       email,
       password,
@@ -151,9 +165,9 @@ export class UserDTO {
 
   public deleteUserInput(
     idToDelete: string, 
-    token: unknown
-    ): DeleteUserOutput{
-    
+    token: string | undefined
+    ): DeleteUserOutputDTO{
+
     if(idToDelete === ":id"){
       throw new BadRequestError("ERROR: report the id of the user to be deleted")
     }
@@ -161,11 +175,8 @@ export class UserDTO {
     if(!token){
       throw new BadRequestError("ERROR: log in to delete the user.")
     }
-    if (typeof token !== "string") {
-      throw new BadRequestError("ERROR: 'token' must be of type string.")
-    }
     
-    const dto: DeleteUserOutput = {
+    const dto: DeleteUserOutputDTO = {
       idToDelete,
       token
     }
