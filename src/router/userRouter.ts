@@ -5,11 +5,12 @@ import { UserDatabase } from "../database/UserDatabase"
 import { IdGenerator } from "../services/IdGenerator"
 import { TokenManager } from "../services/TokenManager"
 import { HashManager } from "../services/HashManager"
+import { UserDTO } from "../dtos/userDTO"
 
 export const userRouter = express.Router()
 
 const userController = new UserController(
-    // new UserDTO(),
+    new UserDTO(),
     new UserBusiness(
       new UserDatabase(),
       new IdGenerator(),
@@ -18,7 +19,7 @@ const userController = new UserController(
     )
   )
   
-//   usersRouter.get("/", userController.getUsers)
+  userRouter.get("/", userController.getUsers)
 //   usersRouter.post("/signup", userController.signup)
 //   usersRouter.post("/login", userController.login)
 //   usersRouter.delete("/:id", userController.deleteUser)
