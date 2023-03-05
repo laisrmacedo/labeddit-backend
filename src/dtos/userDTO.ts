@@ -5,7 +5,7 @@ export interface GetUsersOutputDTO {
   q: string | undefined
 }
 
-export interface CreateUserOutputDTO {
+export interface SignupOutputDTO {
   nickname: string,
   email: string,
   password: string
@@ -46,11 +46,11 @@ export class UserDTO {
     return dto
   }
 
-  public createUserInputDTO(
+  public signupInputDTO(
     nickname: unknown,
     email: unknown,
     password: unknown
-  ): CreateUserOutputDTO{
+  ): SignupOutputDTO{
 
     if (!nickname ||  nickname === "") {
       throw new BadRequestError("ERROR: all fields are mandatory.")
@@ -73,7 +73,7 @@ export class UserDTO {
       throw new BadRequestError("ERROR: 'password' must be of type string.")
     }
 
-    const dto: CreateUserOutputDTO = {
+    const dto: SignupOutputDTO = {
       nickname,
       email,
       password
