@@ -1,5 +1,5 @@
 import { UserDatabase, UserDB } from "../database/UserDatabase"
-import { GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
+import { DeleteUserOutput, GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -111,7 +111,7 @@ export class UserBusiness {
 
     public login = async (input: LoginOutputDTO): Promise<{}> => {
         const { email, password } = input
-    
+
         const userDB: UserDB | undefined = await this.userDatabase.findUserByEmail(email)
         if (!userDB) {
             throw new NotFoundError("ERROR: 'email' or 'password' are wrong.")
@@ -119,21 +119,40 @@ export class UserBusiness {
 
         const passwordHash = await this.hashManager.compare(password, userDB.password)
         if (!passwordHash) {
-          throw new BadRequestError("ERROR: 'email' or 'password' are wrong.")
+            throw new BadRequestError("ERROR: 'email' or 'password' are wrong.")
         }
-    
-    
-        const tokenPayload: TokenPayload = {
-          id: userDB.id,
-          nickname: userDB.nickname,
-          role: userDB.role
-        }
-    
-        const output = {
-          token: this.tokenManager.createToken(tokenPayload)
-        }
-    
-        return output
-      }
 
+
+        const tokenPayload: TokenPayload = {
+            id: userDB.id,
+            nickname: userDB.nickname,
+            role: userDB.role
+        }
+
+        const output = {
+            token: this.tokenManager.createToken(tokenPayload)
+        }
+
+        return output
+    }
+
+    public deleteUser = async (input: DeleteUserOutput): Promise<void> => {
+        const { idToDelete, token } = input
+        const userDB = await this.userDatabase.findUserById(idToDelete)
+
+        if (!userDB) {
+            throw new NotFoundError("ERROR: 'id' not found.")
+        }
+
+        const payload = this.tokenManager.getPayload(token)
+        if (payload === null) {
+            throw new BadRequestError("ERROR: Login failed")
+        }
+
+        if (payload.role !== USER_ROLES.ADMIN && userDB.id !== payload.id) {
+            throw new ForbiddenError("ERROR: No permission to finish the request.")
+        }
+
+        await this.userDatabase.deleteUser(idToDelete)
+    }
 }

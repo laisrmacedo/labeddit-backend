@@ -59,4 +59,11 @@ export class UserDatabase extends BaseDatabase {
             .insert(user)
     }
 
+    public async deleteUser(idToDelete: string): Promise<void> {
+        await BaseDatabase
+            .connection(UserDatabase.TABLE_USERS)
+            .del()
+            .where({ id: idToDelete })
+    }
+
 }
