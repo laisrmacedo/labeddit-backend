@@ -32,15 +32,12 @@ export interface DeleteUserOutputDTO {
 
 export class UserDTO {
   public getUsersInputDTO(
-    token: unknown,
+    token: string | undefined,
     q: unknown
   ):GetUsersOutputDTO{
     
     if(!token){
       throw new BadRequestError("ERROR: log in to see the users.")
-    }
-    if (typeof token !== "string") {
-      throw new BadRequestError("ERROR: 'token' must be of type string.")
     }
 
     if (q !== undefined && typeof q !== "string") {
