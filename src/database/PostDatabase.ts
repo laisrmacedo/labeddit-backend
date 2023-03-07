@@ -11,4 +11,21 @@ export interface PostDB {
   updated_at: string
 }
 
-export class PostDatabase extends BaseDatabase {}
+export class PostDatabase extends BaseDatabase {
+  public static TABLE_POSTS = "posts"
+
+  public async getPosts(q: string | undefined): Promise<PostDB[]> {
+      let postsDB
+      if (q) {
+          const result = await BaseDatabase
+              .connection(PostDatabase.TABLE_POSTS)
+              .where("content", "LIKE", `%${q}%`)
+          postsDB = result
+      } else {
+          const result = await BaseDatabase
+              .connection(PostDatabase.TABLE_POSTS)
+          postsDB = result
+      }
+      return postsDB
+  }
+}

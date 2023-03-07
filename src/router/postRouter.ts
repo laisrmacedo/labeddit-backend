@@ -1,15 +1,24 @@
 import express from "express"
+import { PostBusiness } from "../business/PostBusiness"
 import { PostController } from "../controller/PostController"
+import { PostDatabase } from "../database/PostDatabase"
+import { PostDTO } from "../dtos/postDTO"
+import { IdGenerator } from "../services/IdGenerator"
+import { TokenManager } from "../services/TokenManager"
 
 export const postRouter = express.Router()
 
 const postController = new PostController(
-
+  new PostDTO(),
+  new PostBusiness(
+    new PostDatabase(),
+    new TokenManager,
+    new IdGenerator()
+  )
 )
 
-  
-  // userRouter.get("/", userController.getUsers)
-  // userRouter.post("/signup", userController.signup)
-  // userRouter.post("/login", userController.login)
-  // userRouter.put("/:id", userController.editUser)
-  // userRouter.delete("/:id", userController.deleteUser)
+postRouter.get("/", postController.getPosts)
+// postRouter.post("/signup", postController.signup)
+// postRouter.post("/login", postController.login)
+// postRouter.put("/:id", postController.editUser)
+// postRouter.delete("/:id", postController.deleteUser)
