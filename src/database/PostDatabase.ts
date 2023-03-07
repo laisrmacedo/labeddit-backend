@@ -1,9 +1,9 @@
 import { BaseDatabase } from "./BaseDatabase";
 
 export interface PostDB {
-  id: string, 
+  id: string,
   creator_id: string,
-  content: string, 
+  content: string,
   upvote: number,
   downvote: number,
   comments: number,
@@ -15,17 +15,23 @@ export class PostDatabase extends BaseDatabase {
   public static TABLE_POSTS = "posts"
 
   public async getPosts(q: string | undefined): Promise<PostDB[]> {
-      let postsDB
-      if (q) {
-          const result = await BaseDatabase
-              .connection(PostDatabase.TABLE_POSTS)
-              .where("content", "LIKE", `%${q}%`)
-          postsDB = result
-      } else {
-          const result = await BaseDatabase
-              .connection(PostDatabase.TABLE_POSTS)
-          postsDB = result
-      }
-      return postsDB
+    let postsDB
+    if (q) {
+      const result = await BaseDatabase
+        .connection(PostDatabase.TABLE_POSTS)
+        .where("content", "LIKE", `%${q}%`)
+      postsDB = result
+    } else {
+      const result = await BaseDatabase
+        .connection(PostDatabase.TABLE_POSTS)
+      postsDB = result
+    }
+    return postsDB
+  }
+
+  public async insertPost(post: PostDB): Promise<void> {
+    await BaseDatabase
+      .connection(PostDatabase.TABLE_POSTS)
+      .insert(post)
   }
 }
