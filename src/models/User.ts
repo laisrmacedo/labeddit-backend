@@ -20,18 +20,35 @@ export class User {
   public getId():string{
     return this.id
   }
+
   public getNickname():string{
     return this.nickname
   }
+  public setNickname(value: string): void{
+    this.nickname = value
+  }
+
   public getEmail():string{
     return this.email
   }
+  public setEmail(value: string): void{
+    this.email = value
+  }
+
   public getPassword():string{
     return this.password
   }
+  public setPassword(value: string): void{
+    this.password = value
+  }
+
   public getAvatar():string{
     return this.avatar
   }
+  public setAvatar(value: string): void{
+    this.avatar = value
+  }
+
   public getRole():USER_ROLES{
     return this.role
   }
