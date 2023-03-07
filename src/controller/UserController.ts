@@ -70,6 +70,30 @@ export class UserController {
     }
   }
 
+  public editUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const input = this.userDTO.editUserInputDTO(
+        req.params.id,
+        req.headers.authorization,
+        req.body.nickname,
+        req.body.email,
+        req.body.password,
+        req.body.avatar
+      )
+
+      await this.userBusiness.editUser(input)
+      res.status(200).end()
+
+    } catch (error) {
+      console.log(error)
+      if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.send("Unexpected error")
+      }
+    }
+  }
+
   public deleteUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const input = this.userDTO.deleteUserInput(
@@ -89,6 +113,4 @@ export class UserController {
       }
     }
   }
-
-
 }

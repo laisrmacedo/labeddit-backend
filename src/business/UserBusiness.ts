@@ -1,5 +1,5 @@
 import { UserDatabase, UserDB } from "../database/UserDatabase"
-import { DeleteUserOutput, GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
+import { DeleteUserOutputDTO, EditUserOutputDTO, GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -33,10 +33,10 @@ export class UserBusiness {
         //permission check
         const payload = this.tokenManager.getPayload(token)
         if (payload === null) {
-            throw new BadRequestError("ERROR: Login failed")
+            throw new BadRequestError("ERROR: Login failed.")
         }
         if (payload.role !== USER_ROLES.ADMIN) {
-            throw new ForbiddenError("ERROR: Access denied.")
+            throw new ForbiddenError("ERROR: There's no permission to complete the request.")
         }
 
         const usersDB: UserDB[] = await this.userDatabase.getUsers(q)
@@ -67,7 +67,7 @@ export class UserBusiness {
             throw new BadRequestError("ERROR: 'email' must be like 'example@example.example'.")
         }
         if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,12}$/g)) {
-            throw new BadRequestError("ERROR: 'password' must be between 8 and 12 characters, with uppercase and lowercase letters and at least one number and one special character")
+            throw new BadRequestError("ERROR: 'password' must be between 8 and 12 characters, with uppercase and lowercase letters and at least one number and one special character.")
         }
 
         //nickname repeat check
@@ -136,21 +136,102 @@ export class UserBusiness {
         return output
     }
 
-    public deleteUser = async (input: DeleteUserOutput): Promise<void> => {
-        const { idToDelete, token } = input
-        const userDB = await this.userDatabase.findUserById(idToDelete)
+    public editUser = async (input: EditUserOutputDTO): Promise<void> => {
+        const { idToEdit, token, nickname, email, password, avatar } = input
 
-        if (!userDB) {
+        const foundUser = await this.userDatabase.findUserById(idToEdit)
+        if(!foundUser){
+            throw new NotFoundError("ERROR: 'idToEdit' not found.")
+        }
+
+        //permission check
+        const payload = this.tokenManager.getPayload(token)
+        if (payload === null) {
+            throw new BadRequestError("ERROR: Login failed.")
+        }
+
+        if (foundUser.id !== payload.id) {
+            throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+        }
+
+        //syntax checking
+        if (nickname && nickname.length < 4) {
+            throw new BadRequestError("ERROR: 'nickname' must be at least 4 characters.")
+        }
+        if (email && !email.match(/^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/g)) {
+            throw new BadRequestError("ERROR: 'email' must be like 'example@example.example'.")
+        }
+        if (password && !password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,12}$/g)) {
+            throw new BadRequestError("ERROR: 'password' must be between 8 and 12 characters, with uppercase and lowercase letters and at least one number and one special character.")
+        }
+        if (avatar && !avatar.match(/^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/gm)) {
+            throw new BadRequestError("ERROR: 'avatar' must be a valid image URL.")
+        }
+
+        const userInstance = new User(
+            foundUser.id,
+            foundUser.nickname,
+            foundUser.email,
+            foundUser.password,
+            foundUser.avatar,
+            foundUser.role,
+            foundUser.created_at
+        )
+
+        //nickname repeat check
+        if (nickname && nickname !== foundUser.nickname) {
+            const foundNickname = await this.userDatabase.findUserByNickname(nickname)
+            if(foundNickname){
+                throw new UnprocessableEntity("ERROR: 'nickname' already exists.")
+            }
+            userInstance.setNickname(nickname)
+        }
+
+        //email repeat check
+        if(email && email !== foundUser.email){
+            const foundEmail = await this.userDatabase.findUserByEmail(email)
+            if (foundEmail) {
+                throw new UnprocessableEntity("ERROR: 'email' already exists.")
+            }
+            userInstance.setEmail(email)
+        }
+
+        if(password){
+            userInstance.setPassword(await this.hashManager.hash(password))
+        }
+
+        if(avatar){
+            userInstance.setAvatar(avatar)
+        }
+
+        const newUser: UserDB = {
+            id: userInstance.getId(), 
+            nickname: userInstance.getNickname(),
+            email: userInstance.getEmail(), 
+            password: userInstance.getPassword(),
+            avatar: userInstance.getAvatar(),
+            role: userInstance.getRole(),
+            created_at: userInstance.getCreatedAt()
+        }
+
+        await this.userDatabase.updateUser(idToEdit, newUser)
+    }
+
+    public deleteUser = async (input: DeleteUserOutputDTO): Promise<void> => {
+        const { idToDelete, token } = input
+
+        const foundUser = await this.userDatabase.findUserById(idToDelete)
+        if (!foundUser) {
             throw new NotFoundError("ERROR: 'id' not found.")
         }
 
         const payload = this.tokenManager.getPayload(token)
         if (payload === null) {
-            throw new BadRequestError("ERROR: Login failed")
+            throw new BadRequestError("ERROR: Login failed.")
         }
 
-        if (payload.role !== USER_ROLES.ADMIN && userDB.id !== payload.id) {
-            throw new ForbiddenError("ERROR: No permission to finish the request.")
+        if (payload.role !== USER_ROLES.ADMIN && foundUser.id !== payload.id) {
+            throw new ForbiddenError("ERROR: There's no permission to complete the request.")
         }
 
         await this.userDatabase.deleteUser(idToDelete)

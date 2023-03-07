@@ -29,7 +29,7 @@ export class UserDatabase extends BaseDatabase {
         return usersDB
     }
 
-    public async findUserById(id: string): Promise<UserDB> {
+    public async findUserById(id: string): Promise<UserDB | undefined> {
         const [result]: UserDB[] = await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .where({ id })
@@ -37,7 +37,7 @@ export class UserDatabase extends BaseDatabase {
         return result
     }
 
-    public async findUserByNickname(nickname: string): Promise<UserDB> {
+    public async findUserByNickname(nickname: string): Promise<UserDB | undefined> {
         const [result]: UserDB[] = await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .where({ nickname })
@@ -45,7 +45,7 @@ export class UserDatabase extends BaseDatabase {
         return result
     }
 
-    public async findUserByEmail(email: string): Promise<UserDB> {
+    public async findUserByEmail(email: string): Promise<UserDB | undefined> {
         const [result]: UserDB[] = await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .where({ email })
@@ -57,6 +57,13 @@ export class UserDatabase extends BaseDatabase {
         await BaseDatabase
             .connection(UserDatabase.TABLE_USERS)
             .insert(user)
+    }
+
+    public async updateUser(id: string, updatedUser: UserDB): Promise<void> {
+        await BaseDatabase
+            .connection(UserDatabase.TABLE_USERS)
+            .update(updatedUser)
+            .where({ id })
     }
 
     public async deleteUser(idToDelete: string): Promise<void> {
