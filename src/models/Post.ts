@@ -31,15 +31,21 @@ export class Post {
   public getUpvote():number{
     return this.upvote
   }
-  public setUpvote(value: number): void{
-    this.upvote = value
+  public addUpvote(): void{
+    this.upvote += 1
+  }
+  public removeUpvote(): void{
+    this.upvote -= 1
   }
 
   public getDownvote():number{
     return this.downvote
   }
-  public setDownvote(value: number): void{
-    this.downvote = value
+  public addDownvote(): void{
+    this.downvote += 1
+  }
+  public removeDownvote(): void{
+    this.downvote -= 1
   }
 
   public getComments():number{

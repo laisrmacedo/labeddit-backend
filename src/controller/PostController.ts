@@ -24,7 +24,7 @@ export class PostController {
       if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
-        res.send("Unexpected error")
+        res.status(500).send("Unexpected error")
       }
     }
   }
@@ -44,7 +44,7 @@ export class PostController {
       if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
-        res.send("Unexpected error")
+        res.status(500).send("Unexpected error")
       }
     }
   }
@@ -65,7 +65,7 @@ export class PostController {
       if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
-        res.send("Unexpected error")
+        res.status(500).send("Unexpected error")
       }
     }
   }
@@ -85,7 +85,28 @@ export class PostController {
       if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message)
       } else {
-        res.send("Unexpected error")
+        res.status(500).send("Unexpected error")
+      }
+    }
+  }
+  
+  public upvoteOrDownvotePost = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const input = this.postDTO.upvoteOrDownvotePostInputDTO(
+        req.params.id,
+        req.headers.authorization,
+        req.body.vote
+      )
+
+      await this.postBusiness.upvoteOrDownvotePost(input)
+      res.status(200).end()
+  
+    } catch (error) {
+      console.log(error)
+      if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.status(500).send("Unexpected error")
       }
     }
   }

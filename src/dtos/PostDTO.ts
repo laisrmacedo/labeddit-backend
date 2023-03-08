@@ -21,6 +21,12 @@ export interface DeletePostOutputDTO {
   token: string
 }
 
+export interface UpvoteOrDownvotePostOutputDTO {
+  idToVote: string,
+  token: string,
+  vote: boolean
+}
+
 
 export class PostDTO {
   public getPostsInputDTO(
@@ -117,6 +123,36 @@ export class PostDTO {
     const dto: DeletePostOutputDTO = {
       idToDelete,
       token
+    }
+
+    return dto
+  }
+
+  public upvoteOrDownvotePostInputDTO(
+    idToVote: string,
+    token: string | undefined,
+    vote: unknown
+  ): UpvoteOrDownvotePostOutputDTO{
+
+    if(idToVote === ":id"){
+      throw new BadRequestError("ERROR: report the id of the post to be voted.")
+    }
+
+    if(!token){
+      throw new BadRequestError("ERROR: log in to vote the post.")
+    }
+
+    if(vote === undefined || vote === ""){
+      throw new BadRequestError("ERROR: the 'vote' field is mandatory.")
+    }
+    if (typeof vote !== "boolean") {
+      throw new BadRequestError("ERROR: 'vote' must be true or false.")
+    }
+
+    const dto: UpvoteOrDownvotePostOutputDTO = {
+      idToVote,
+      token,
+      vote
     }
 
     return dto

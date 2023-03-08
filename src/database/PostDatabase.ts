@@ -11,8 +11,15 @@ export interface PostDB {
   updated_at: string
 }
 
+export interface postUpvoteDownvoteDB {
+  post_id: string,
+  user_id: string,
+  vote: number
+}
+
 export class PostDatabase extends BaseDatabase {
   public static TABLE_POSTS = "posts"
+  public static TABLE_POST_UPVOTE_DOWNVOTE = "post_upvote_downvote"
 
   public async getPosts(q: string | undefined): Promise<PostDB[]> {
     let postsDB
@@ -55,6 +62,48 @@ export class PostDatabase extends BaseDatabase {
       .connection(PostDatabase.TABLE_POSTS)
       .del()
       .where({ id })
+  }
+
+  public async upvoteDownvotePost(item: postUpvoteDownvoteDB): Promise<void>{
+    await BaseDatabase
+    .connection(PostDatabase.TABLE_POST_UPVOTE_DOWNVOTE)
+    .insert(item)
+  }
+
+  public async findPostUpvoteDownvote(item: postUpvoteDownvoteDB): Promise<string | null>{
+    const [result]: postUpvoteDownvoteDB[] = await BaseDatabase
+    .connection(PostDatabase.TABLE_POST_UPVOTE_DOWNVOTE)
+    .select()
+    .where({
+      post_id: item.post_id,
+      user_id: item.user_id
+    })
+
+    if(result){
+      return result.vote === 1 ? "up" : "down"
+    }else{
+      return null
+    }
+  }
+
+  public async removeUpvoteDownvote(item: postUpvoteDownvoteDB): Promise<void>{
+    await BaseDatabase
+    .connection(PostDatabase.TABLE_POST_UPVOTE_DOWNVOTE)
+    .del()
+    .where({ 
+      user_id: item.user_id,
+      post_id: item.post_id
+    })
+  }
+  
+  public async updateUpvoteDownvote(item: postUpvoteDownvoteDB): Promise<void>{
+    await BaseDatabase
+    .connection(PostDatabase.TABLE_POST_UPVOTE_DOWNVOTE)
+    .update(item)
+    .where({ 
+      user_id: item.user_id,
+      post_id: item.post_id
+    })
   }
 
 }
