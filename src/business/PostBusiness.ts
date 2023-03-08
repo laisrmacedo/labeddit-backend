@@ -1,6 +1,8 @@
 import { PostDatabase, PostDB } from "../database/PostDatabase";
-import { CreatePostOutputDTO, GetPostsOutputDTO } from "../dtos/postDTO";
+import { EditPostOutputDTO, CreatePostOutputDTO, GetPostsOutputDTO } from "../dtos/postDTO";
 import { BadRequestError } from "../errors/BadRequestError";
+import { ForbiddenError } from "../errors/ForbiddenError";
+import { NotFoundError } from "../errors/NotFoundError";
 import { Post } from "../models/Post";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
@@ -61,7 +63,7 @@ export class PostBusiness {
 
     //characters quantity
     if(content.length > 300){
-      throw new BadRequestError("ERROR: The maximum comment length is 300 characters.")
+      throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
     }
 
     const newPost = new Post(
@@ -78,4 +80,45 @@ export class PostBusiness {
     await this.postDatabase.insertPost(newPost.toDBModel())
   }
 
+  public editPost = async (input: EditPostOutputDTO): Promise<void> => {
+    const {idToEdit, token, content} = input
+    
+    console.log('entrou')
+    const postDB = await this.postDatabase.getPostById(idToEdit)
+
+    if(!postDB){
+      throw new NotFoundError("ERROR: 'idToEdit' not found.")
+    }
+
+    //login ckeck
+    const payload = this.tokenManager.getPayload(token)
+    if(payload === null){
+      throw new BadRequestError("ERROR: Login failed")
+    }
+
+    if(postDB.creator_id !== payload.id){
+      throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+    }
+
+    //characters quantity
+    if(content.length > 300){
+      throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
+    }
+
+    const newPost = new Post(
+      postDB.id, 
+      postDB.creator_id,
+      postDB.content,
+      postDB.upvote,
+      postDB.downvote,
+      postDB.comments,
+      postDB.created_at,
+      postDB.updated_at
+    )
+
+    newPost.setContent(content)
+    newPost.setUpdatedAt(new Date().toISOString())
+
+    await this.postDatabase.updatePost(idToEdit, newPost.toDBModel())
+  }
 }

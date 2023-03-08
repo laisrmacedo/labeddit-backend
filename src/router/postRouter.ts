@@ -19,6 +19,5 @@ const postController = new PostController(
 
 postRouter.get("/", postController.getPosts)
 postRouter.post("/", postController.createPost)
-// postRouter.post("/login", postController.login)
-// postRouter.put("/:id", postController.editUser)
+postRouter.put("/:id", postController.editPost)
 // postRouter.delete("/:id", postController.deleteUser)

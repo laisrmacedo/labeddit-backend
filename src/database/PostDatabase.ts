@@ -34,4 +34,20 @@ export class PostDatabase extends BaseDatabase {
       .connection(PostDatabase.TABLE_POSTS)
       .insert(post)
   }
+  
+  public async getPostById(id: string): Promise<PostDB | undefined> {
+    const result = await BaseDatabase
+    .connection(PostDatabase.TABLE_POSTS)
+    .where({ id })
+    
+    return result[0]
+  }
+
+  public async updatePost(id: string, post: PostDB): Promise<void> {
+    await BaseDatabase
+      .connection(PostDatabase.TABLE_POSTS)
+      .update(post)
+      .where({ id })
+  }
+
 }
