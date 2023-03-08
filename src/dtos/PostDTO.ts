@@ -16,6 +16,12 @@ export interface EditPostOutputDTO {
   content: string
 }
 
+export interface DeletePostOutputDTO {
+  idToDelete: string,
+  token: string
+}
+
+
 export class PostDTO {
   public getPostsInputDTO(
     token: string | undefined,
@@ -89,6 +95,30 @@ export class PostDTO {
       content
     }
     
+    return dto
+  }
+
+  public deletePostInputDTO(
+    idToDelete: string,
+    token: string | undefined
+  ): DeletePostOutputDTO{
+
+    if(idToDelete === ":id"){
+      throw new BadRequestError("ERROR: report the id of the post to be deleted.")
+    }
+
+    if(!token){
+      throw new BadRequestError("ERROR: log in to edit the post.")
+    }
+    if (typeof token !== "string") {
+      throw new BadRequestError("ERROR: 'token' must be of type string.")
+    }
+
+    const dto: DeletePostOutputDTO = {
+      idToDelete,
+      token
+    }
+
     return dto
   }
 }

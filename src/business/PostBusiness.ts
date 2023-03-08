@@ -1,9 +1,10 @@
 import { PostDatabase, PostDB } from "../database/PostDatabase";
-import { EditPostOutputDTO, CreatePostOutputDTO, GetPostsOutputDTO } from "../dtos/postDTO";
+import { DeletePostOutputDTO, EditPostOutputDTO, CreatePostOutputDTO, GetPostsOutputDTO } from "../dtos/postDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { Post } from "../models/Post";
+import { USER_ROLES } from "../models/User";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
 
@@ -83,9 +84,7 @@ export class PostBusiness {
   public editPost = async (input: EditPostOutputDTO): Promise<void> => {
     const {idToEdit, token, content} = input
     
-    console.log('entrou')
     const postDB = await this.postDatabase.getPostById(idToEdit)
-
     if(!postDB){
       throw new NotFoundError("ERROR: 'idToEdit' not found.")
     }
@@ -120,5 +119,27 @@ export class PostBusiness {
     newPost.setUpdatedAt(new Date().toISOString())
 
     await this.postDatabase.updatePost(idToEdit, newPost.toDBModel())
+  }
+
+  public deletePost = async (input: DeletePostOutputDTO): Promise<void> => {
+    const {idToDelete, token} = input
+
+    const postDB: PostDB | undefined = await this.postDatabase.getPostById(idToDelete)
+    if(!postDB){
+      throw new NotFoundError("ERROR: 'idToDelete' not found.")
+    }
+
+    //login ckeck
+    const payload = this.tokenManager.getPayload(token)
+    if(payload === null){
+      throw new BadRequestError("ERROR: Login failed.")
+    }
+
+    //permission check
+    if(payload.role !== USER_ROLES.ADMIN && postDB.creator_id !== payload.id){
+      throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+    }
+
+    await this.postDatabase.deletePost(idToDelete)
   }
 }
