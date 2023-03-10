@@ -16,6 +16,11 @@ export interface EditCommentOutputDTO {
   content: string
 }
 
+export interface DeleteCommentOutputDTO {
+  idToDelete: string,
+  token: string
+}
+
 export class CommentDTO {
   public getCommentsInputDTO(
     token: string | undefined
@@ -73,7 +78,7 @@ export class CommentDTO {
     }
 
     if(!token){
-      throw new BadRequestError("ERROR: log in to create a comment.")
+      throw new BadRequestError("ERROR: log in to edit a comment.")
     }
 
     if(!content || content === ""){
@@ -87,6 +92,27 @@ export class CommentDTO {
       idToEdit,
       token,
       content
+    }
+    
+    return dto
+  }
+
+  public deleteCommentInputDTO(
+    idToDelete: string,
+    token: string | undefined
+  ): DeleteCommentOutputDTO{
+
+    if(idToDelete === ":id"){
+      throw new BadRequestError("ERROR: report the id of the comment to be deleted.")
+    }
+
+    if(!token){
+      throw new BadRequestError("ERROR: log in to delete a comment.")
+    }
+
+    const dto: DeleteCommentOutputDTO = {
+      idToDelete,
+      token
     }
     
     return dto

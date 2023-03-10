@@ -1,10 +1,11 @@
 import { CommentDatabase, CommentDB } from "../database/CommentDatabase";
 import { PostDatabase, PostDB } from "../database/PostDatabase";
-import { CreateCommenteOutputDTO, EditCommentOutputDTO, GetCommentsOutputDTO } from "../dtos/CommentDTO";
+import { CreateCommenteOutputDTO, DeleteCommentOutputDTO, EditCommentOutputDTO, GetCommentsOutputDTO } from "../dtos/CommentDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { Comment } from "../models/Comment";
+import { USER_ROLES } from "../models/User";
 import { IdGenerator } from "../services/IdGenerator";
 import { TokenManager } from "../services/TokenManager";
 
@@ -90,7 +91,7 @@ export class CommentBusiness {
   public editComment = async (input: EditCommentOutputDTO): Promise<void> => {
     const {idToEdit, token, content} = input
     
-    const commentDB = await this.commentDatabase.getCommentById(idToEdit)
+    const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(idToEdit)
     if(!commentDB){
       throw new NotFoundError("ERROR: 'idToEdit' not found.")
     }
@@ -125,5 +126,27 @@ export class CommentBusiness {
     newComment.setUpdatedAt(new Date().toISOString())
 
     await this.commentDatabase.updateComment(idToEdit, newComment.toDBModel())
+  }
+
+  public deleteComment = async (input: DeleteCommentOutputDTO): Promise<void> => {
+    const {idToDelete, token} = input
+
+    const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(idToDelete)
+    if(!commentDB){
+      throw new NotFoundError("ERROR: 'idToDelete' not found.")
+    }
+
+    //login ckeck
+    const payload = this.tokenManager.getPayload(token)
+    if(payload === null){
+      throw new BadRequestError("ERROR: Login failed.")
+    }
+
+    //permission check
+    if(payload.role !== USER_ROLES.ADMIN && commentDB.creator_id !== payload.id){
+      throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+    }
+
+    await this.commentDatabase.deleteComment(idToDelete)
   }
 }

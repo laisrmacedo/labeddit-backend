@@ -69,4 +69,24 @@ export class CommentController {
       }
     }
   }
+
+  public deleteComment = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const input = this.commentDTO.deleteCommentInputDTO(
+        req.params.id,
+        req.headers.authorization
+      )
+
+      await this.commentBusiness.deleteComment(input)
+      res.status(200).end()
+  
+    } catch (error) {
+      console.log(error)
+      if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.status(500).send("Unexpected error")
+      }
+    }
+  }
 }
