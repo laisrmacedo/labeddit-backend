@@ -1,6 +1,6 @@
-import { CommentDatabase, CommentDB } from "../database/CommentDatabase";
+import { CommentDatabase, CommentDB, commentUpvoteDownvoteDB } from "../database/CommentDatabase";
 import { PostDatabase, PostDB } from "../database/PostDatabase";
-import { CreateCommenteOutputDTO, DeleteCommentOutputDTO, EditCommentOutputDTO, GetCommentsOutputDTO } from "../dtos/CommentDTO";
+import { CreateCommenteOutputDTO, DeleteCommentOutputDTO, EditCommentOutputDTO, GetCommentsOutputDTO, UpvoteOrDownvoteCommentOutputDTO } from "../dtos/CommentDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -148,5 +148,67 @@ export class CommentBusiness {
     }
 
     await this.commentDatabase.deleteComment(idToDelete)
+  }
+
+  public upvoteOrDownvoteComment = async (input: UpvoteOrDownvoteCommentOutputDTO): Promise<void> => {
+    const {idToVote, token, vote} = input
+
+    const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(idToVote)
+    if(!commentDB){
+      throw new NotFoundError("ERROR: 'idToVote' not found")
+    }
+
+    //login ckeck
+    const payload = this.tokenManager.getPayload(token)
+    if(payload === null){
+      throw new BadRequestError("ERROR: Login failed")
+    }
+
+    const voteDB = vote ? 1 : 0
+
+    const commentUpvoteDownvoteDB : commentUpvoteDownvoteDB = {
+      comment_id: commentDB.id,
+      user_id: payload.id,
+      vote: voteDB
+    }
+
+    const comment = new Comment(
+      commentDB.id, 
+      commentDB.creator_id,
+      commentDB.post_id,
+      commentDB.content,
+      commentDB.upvote,
+      commentDB.downvote,
+      commentDB.created_at,
+      commentDB.updated_at
+    )
+
+    const commentUpvoteDownvote = await this.commentDatabase.findCommentUpvoteDownvote(commentUpvoteDownvoteDB)
+
+    //upvote or downvote check 
+    if(commentUpvoteDownvote === "up"){ //alreary upvoted
+      if(vote){
+        await this.commentDatabase.removeUpvoteDownvote(commentUpvoteDownvoteDB)
+        comment.removeUpvote()
+      }else{
+        await this.commentDatabase.updateUpvoteDownvote(commentUpvoteDownvoteDB)
+        comment.removeUpvote()
+        comment.addDownvote()
+      }
+    }else if(commentUpvoteDownvote === "down"){ //alreary downvoted
+      if(vote){
+        await this.commentDatabase.updateUpvoteDownvote(commentUpvoteDownvoteDB)
+        comment.removeDownvote()
+        comment.addUpvote()
+      }else{
+        await this.commentDatabase.removeUpvoteDownvote(commentUpvoteDownvoteDB)
+        comment.removeDownvote()
+      }
+    }else{
+      await this.commentDatabase.upvoteDownvoteComment(commentUpvoteDownvoteDB)
+      voteDB ? comment.addUpvote() : comment.addDownvote()  
+    }
+
+    await this.commentDatabase.updateComment(idToVote, comment.toDBModel())
   }
 }

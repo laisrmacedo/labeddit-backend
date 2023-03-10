@@ -21,6 +21,12 @@ export interface DeleteCommentOutputDTO {
   token: string
 }
 
+export interface UpvoteOrDownvoteCommentOutputDTO {
+  idToVote: string,
+  token: string,
+  vote: boolean
+}
+
 export class CommentDTO {
   public getCommentsInputDTO(
     token: string | undefined
@@ -115,6 +121,36 @@ export class CommentDTO {
       token
     }
     
+    return dto
+  }
+
+  public upvoteOrDownvoteCommentInputDTO(
+    idToVote: string,
+    token: string | undefined,
+    vote: unknown
+  ): UpvoteOrDownvoteCommentOutputDTO{
+
+    if(idToVote === ":id"){
+      throw new BadRequestError("ERROR: report the id of the comment to be voted.")
+    }
+
+    if(!token){
+      throw new BadRequestError("ERROR: log in to vote the comment.")
+    }
+
+    if(vote === undefined || vote === ""){
+      throw new BadRequestError("ERROR: the 'vote' field is mandatory.")
+    }
+    if (typeof vote !== "boolean") {
+      throw new BadRequestError("ERROR: 'vote' must be true or false.")
+    }
+
+    const dto: UpvoteOrDownvoteCommentOutputDTO = {
+      idToVote,
+      token,
+      vote
+    }
+
     return dto
   }
 }

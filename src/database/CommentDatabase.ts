@@ -12,9 +12,16 @@ export interface CommentDB {
   updated_at: string
 }
 
+export interface commentUpvoteDownvoteDB {
+  comment_id: string,
+  user_id: string,
+  vote: number
+}
+
 export class CommentDatabase extends BaseDatabase {
   public static TABLE_POSTS = "posts"
   public static TABLE_COMMENTS = "comments"
+  public static TABLE_COMMENT_UPVOTE_DOWNVOTE = "comment_upvote_downvote"
 
   public async getPostById(id: string): Promise<PostDB | undefined> {
     const result = await BaseDatabase
@@ -58,5 +65,47 @@ export class CommentDatabase extends BaseDatabase {
       .connection(CommentDatabase.TABLE_COMMENTS)
       .del()
       .where({ id })
+  }
+
+  public async findCommentUpvoteDownvote(item: commentUpvoteDownvoteDB): Promise<string | null>{
+    const [result]: commentUpvoteDownvoteDB[] = await BaseDatabase
+    .connection(CommentDatabase.TABLE_COMMENT_UPVOTE_DOWNVOTE)
+    .select()
+    .where({
+      comment_id: item.comment_id,
+      user_id: item.user_id
+    })
+
+    if(result){
+      return result.vote === 1 ? "up" : "down"
+    }else{
+      return null
+    }
+  }
+
+  public async removeUpvoteDownvote(item: commentUpvoteDownvoteDB): Promise<void>{
+    await BaseDatabase
+    .connection(CommentDatabase.TABLE_COMMENT_UPVOTE_DOWNVOTE)
+    .del()
+    .where({ 
+      comment_id: item.comment_id,
+      user_id: item.user_id
+    })
+  }
+  
+  public async updateUpvoteDownvote(item: commentUpvoteDownvoteDB): Promise<void>{
+    await BaseDatabase
+    .connection(CommentDatabase.TABLE_COMMENT_UPVOTE_DOWNVOTE)
+    .update(item)
+    .where({ 
+      comment_id: item.comment_id,
+      user_id: item.user_id
+    })
+  }
+
+  public async upvoteDownvoteComment(item: commentUpvoteDownvoteDB): Promise<void>{
+    await BaseDatabase
+    .connection(CommentDatabase.TABLE_COMMENT_UPVOTE_DOWNVOTE)
+    .insert(item)
   }
 }
