@@ -17,3 +17,4 @@ app.listen(Number(process.env.PORT), () => {
 
 app.use("/users", userRouter)
 app.use("/posts", postRouter)
+app.use("/comments", postRouter)
