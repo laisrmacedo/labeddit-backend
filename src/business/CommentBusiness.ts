@@ -1,7 +1,8 @@
 import { CommentDatabase, CommentDB } from "../database/CommentDatabase";
 import { PostDatabase, PostDB } from "../database/PostDatabase";
-import { CreateCommenteOutputDTO, GetCommentsOutputDTO } from "../dtos/CommentDTO";
+import { CreateCommenteOutputDTO, EditCommentOutputDTO, GetCommentsOutputDTO } from "../dtos/CommentDTO";
 import { BadRequestError } from "../errors/BadRequestError";
+import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
 import { Comment } from "../models/Comment";
 import { IdGenerator } from "../services/IdGenerator";
@@ -84,5 +85,45 @@ export class CommentBusiness {
     )
 
     await this.commentDatabase.insertComment(newComment.toDBModel())
+  }
+
+  public editComment = async (input: EditCommentOutputDTO): Promise<void> => {
+    const {idToEdit, token, content} = input
+    
+    const commentDB = await this.commentDatabase.getCommentById(idToEdit)
+    if(!commentDB){
+      throw new NotFoundError("ERROR: 'idToEdit' not found.")
+    }
+
+    //login ckeck
+    const payload = this.tokenManager.getPayload(token)
+    if(payload === null){
+      throw new BadRequestError("ERROR: Login failed")
+    }
+
+    if(commentDB.creator_id !== payload.id){
+      throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+    }
+
+    //characters quantity
+    if(content.length > 300){
+      throw new BadRequestError("ERROR: The maximum comment length is 300 characters.")
+    }
+
+    const newComment = new Comment(
+      commentDB.id, 
+      commentDB.creator_id,
+      commentDB.post_id,
+      commentDB.content,
+      commentDB.upvote,
+      commentDB.downvote,
+      commentDB.created_at,
+      commentDB.updated_at
+    )
+
+    newComment.setContent(content)
+    newComment.setUpdatedAt(new Date().toISOString())
+
+    await this.commentDatabase.updateComment(idToEdit, newComment.toDBModel())
   }
 }
