@@ -53,6 +53,13 @@ export class CommentDatabase extends BaseDatabase {
       .insert(comment)
   }
 
+  public async updateQuantityComments(postId: string, value: number): Promise<void> {
+    await BaseDatabase
+    .connection(CommentDatabase.TABLE_POSTS)
+    .update({ comments: value})
+    .where({ id: postId})
+  }
+
   public async updateComment(id: string, comment: CommentDB): Promise<void> {
     await BaseDatabase
       .connection(CommentDatabase.TABLE_COMMENTS)
