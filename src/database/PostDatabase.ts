@@ -1,4 +1,6 @@
 import { BaseDatabase } from "./BaseDatabase";
+import { CommentDB } from "./CommentDatabase";
+import { UserDB } from "./UserDatabase";
 
 export interface PostDB {
   id: string,
@@ -20,6 +22,8 @@ export interface postUpvoteDownvoteDB {
 export class PostDatabase extends BaseDatabase {
   public static TABLE_POSTS = "posts"
   public static TABLE_POST_UPVOTE_DOWNVOTE = "post_upvote_downvote"
+  public static TABLE_COMMENTS = "comments"
+  public static TABLE_USERS = "users"
 
   public async getPosts(q: string | undefined): Promise<PostDB[]> {
     let postsDB
@@ -48,6 +52,22 @@ export class PostDatabase extends BaseDatabase {
     .where({ id })
     
     return result[0]
+  }
+
+  public async getPostCreator(id: string): Promise<UserDB> {
+    const result: UserDB[] = await BaseDatabase
+    .connection(PostDatabase.TABLE_USERS)
+    .where({ id })
+    
+    return result[0]
+  }
+
+  public async getCommentsByPostId(id: string): Promise<CommentDB[]> {
+    const result = await BaseDatabase
+    .connection(PostDatabase.TABLE_COMMENTS)
+    .where({ post_id: id })
+    
+    return result
   }
 
   public async updatePost(id: string, post: PostDB): Promise<void> {

@@ -5,6 +5,11 @@ export interface GetPostsOutputDTO {
   q: string | undefined
 }
 
+export interface GetPostByIdOutputDTO {
+  id: string,
+  token: string
+}
+
 export interface CreatePostOutputDTO {
   token: string,
   content: string
@@ -45,6 +50,28 @@ export class PostDTO {
     const dto: GetPostsOutputDTO = {
       token,
       q
+    }
+    
+    return dto
+  }
+
+  public getPostByIdInputDTO(
+    id: string,
+    token: string | undefined
+  ):GetPostByIdOutputDTO {
+
+    if(id === ":id"){
+      throw new BadRequestError("ERROR: report the id of the post.")
+    }
+
+    if(!token){
+      throw new BadRequestError("ERROR: log in to see the posts.")
+    }
+
+
+    const dto: GetPostByIdOutputDTO = {
+      id,
+      token
     }
     
     return dto

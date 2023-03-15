@@ -1,5 +1,7 @@
+import { CommentDB } from "../database/CommentDatabase";
 import { PostDatabase, PostDB, postUpvoteDownvoteDB } from "../database/PostDatabase";
-import { DeletePostOutputDTO, EditPostOutputDTO, CreatePostOutputDTO, GetPostsOutputDTO, UpvoteOrDownvotePostOutputDTO } from "../dtos/postDTO";
+import { UserDB } from "../database/UserDatabase";
+import { DeletePostOutputDTO, EditPostOutputDTO, CreatePostOutputDTO, GetPostsOutputDTO, UpvoteOrDownvotePostOutputDTO, GetPostByIdOutputDTO } from "../dtos/postDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -53,22 +55,53 @@ export class PostBusiness {
     return posts
   }
 
+  public getPostById = async (input: GetPostByIdOutputDTO): Promise<{}> => {
+    const { id, token } = input
+
+    const postDB: PostDB | undefined = await this.postDatabase.getPostById(id)
+    if (!postDB) {
+      throw new NotFoundError("ERROR: 'id' not found.")
+    }
+
+    //permission check
+    const payload = this.tokenManager.getPayload(token)
+    if (payload === null) {
+      throw new BadRequestError("ERROR: Login failed.")
+    }
+
+    const postCreator: UserDB = await this.postDatabase.getPostCreator(postDB.creator_id)
+    const commentsByPostId: CommentDB[] = await this.postDatabase.getCommentsByPostId(id)
+
+    const postWithComments = {
+      id: postDB.id,
+      creatorNickname: postCreator.nickname,
+      content: postDB.content,
+      upvote: postDB.upvote,
+      downvote: postDB.downvote,
+      createdAt: postDB.created_at,
+      updatedAt: postDB.updated_at,
+      comments: commentsByPostId
+    }
+
+    return postWithComments
+  }
+
   public createPost = async (input: CreatePostOutputDTO): Promise<void> => {
-    const {token, content} = input
+    const { token, content } = input
 
     //login ckeck
     const payload = this.tokenManager.getPayload(token)
-    if(payload === null){
+    if (payload === null) {
       throw new BadRequestError("ERROR: Login failed")
     }
 
     //characters quantity
-    if(content.length > 300){
+    if (content.length > 300) {
       throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
     }
 
     const newPost = new Post(
-      this.idGenerator.generate(), 
+      this.idGenerator.generate(),
       payload.id,
       content,
       0,
@@ -82,30 +115,30 @@ export class PostBusiness {
   }
 
   public editPost = async (input: EditPostOutputDTO): Promise<void> => {
-    const {idToEdit, token, content} = input
-    
+    const { idToEdit, token, content } = input
+
     const postDB = await this.postDatabase.getPostById(idToEdit)
-    if(!postDB){
+    if (!postDB) {
       throw new NotFoundError("ERROR: 'idToEdit' not found.")
     }
 
     //login ckeck
     const payload = this.tokenManager.getPayload(token)
-    if(payload === null){
+    if (payload === null) {
       throw new BadRequestError("ERROR: Login failed")
     }
 
-    if(postDB.creator_id !== payload.id){
+    if (postDB.creator_id !== payload.id) {
       throw new ForbiddenError("ERROR: There's no permission to complete the request.")
     }
 
     //characters quantity
-    if(content.length > 300){
+    if (content.length > 300) {
       throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
     }
 
     const newPost = new Post(
-      postDB.id, 
+      postDB.id,
       postDB.creator_id,
       postDB.content,
       postDB.upvote,
@@ -122,21 +155,21 @@ export class PostBusiness {
   }
 
   public deletePost = async (input: DeletePostOutputDTO): Promise<void> => {
-    const {idToDelete, token} = input
+    const { idToDelete, token } = input
 
     const postDB: PostDB | undefined = await this.postDatabase.getPostById(idToDelete)
-    if(!postDB){
+    if (!postDB) {
       throw new NotFoundError("ERROR: 'idToDelete' not found.")
     }
 
     //login ckeck
     const payload = this.tokenManager.getPayload(token)
-    if(payload === null){
+    if (payload === null) {
       throw new BadRequestError("ERROR: Login failed.")
     }
 
     //permission check
-    if(payload.role !== USER_ROLES.ADMIN && postDB.creator_id !== payload.id){
+    if (payload.role !== USER_ROLES.ADMIN && postDB.creator_id !== payload.id) {
       throw new ForbiddenError("ERROR: There's no permission to complete the request.")
     }
 
@@ -144,29 +177,29 @@ export class PostBusiness {
   }
 
   public upvoteOrDownvotePost = async (input: UpvoteOrDownvotePostOutputDTO): Promise<void> => {
-    const {idToVote, token, vote} = input
+    const { idToVote, token, vote } = input
 
     const postDB: PostDB | undefined = await this.postDatabase.getPostById(idToVote)
-    if(!postDB){
+    if (!postDB) {
       throw new NotFoundError("ERROR: 'idToVote' not found")
     }
 
     //login ckeck
     const payload = this.tokenManager.getPayload(token)
-    if(payload === null){
+    if (payload === null) {
       throw new BadRequestError("ERROR: Login failed")
     }
 
     const voteDB = vote ? 1 : 0
 
-    const postUpvoteDownvoteDB : postUpvoteDownvoteDB = {
+    const postUpvoteDownvoteDB: postUpvoteDownvoteDB = {
       post_id: postDB.id,
       user_id: payload.id,
       vote: voteDB
     }
 
     const post = new Post(
-      postDB.id, 
+      postDB.id,
       postDB.creator_id,
       postDB.content,
       postDB.upvote,
@@ -179,27 +212,27 @@ export class PostBusiness {
     const postUpvoteDownvote = await this.postDatabase.findPostUpvoteDownvote(postUpvoteDownvoteDB)
 
     //upvote or downvote check 
-    if(postUpvoteDownvote === "up"){ //alreary upvoted
-      if(vote){
+    if (postUpvoteDownvote === "up") { //alreary upvoted
+      if (vote) {
         await this.postDatabase.removeUpvoteDownvote(postUpvoteDownvoteDB)
         post.removeUpvote()
-      }else{
+      } else {
         await this.postDatabase.updateUpvoteDownvote(postUpvoteDownvoteDB)
         post.removeUpvote()
         post.addDownvote()
       }
-    }else if(postUpvoteDownvote === "down"){ //alreary downvoted
-      if(vote){
+    } else if (postUpvoteDownvote === "down") { //alreary downvoted
+      if (vote) {
         await this.postDatabase.updateUpvoteDownvote(postUpvoteDownvoteDB)
         post.removeDownvote()
         post.addUpvote()
-      }else{
+      } else {
         await this.postDatabase.removeUpvoteDownvote(postUpvoteDownvoteDB)
         post.removeDownvote()
       }
-    }else{
+    } else {
       await this.postDatabase.upvoteDownvotePost(postUpvoteDownvoteDB)
-      voteDB ? post.addUpvote() : post.addDownvote()  
+      voteDB ? post.addUpvote() : post.addDownvote()
     }
 
     await this.postDatabase.updatePost(idToVote, post.toDBModel())
