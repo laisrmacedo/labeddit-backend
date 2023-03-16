@@ -135,8 +135,8 @@ export class PostBusiness {
     }
 
     //characters quantity
-    if (content.length > 300) {
-      throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
+    if (content.length > 280) {
+      throw new BadRequestError("ERROR: The maximum post length is 280 characters.")
     }
 
     const newPost = new Post(
@@ -172,8 +172,8 @@ export class PostBusiness {
     }
 
     //characters quantity
-    if (content.length > 300) {
-      throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
+    if (content.length > 280) {
+      throw new BadRequestError("ERROR: The maximum post length is 280 characters.")
     }
 
     const newPost = new Post(
