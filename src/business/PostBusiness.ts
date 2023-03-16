@@ -28,8 +28,7 @@ export class PostBusiness {
     private idGenerator: IdGenerator
   ) { }
 
-  public getPosts = async (input: GetPostsOutputDTO): Promise<PostBusinessModel[]> => {
-    const { token, q } = input
+  public getPosts = async (token: string): Promise<{}[]> => {
 
     //permission check
     const payload = this.tokenManager.getPayload(token)
@@ -37,22 +36,44 @@ export class PostBusiness {
       throw new BadRequestError("ERROR: Login failed.")
     }
 
-    const postsDB: PostDB[] = await this.postDatabase.getPosts(q)
-    const posts = postsDB.map((postDB) => {
-      const post = new Post(
-        postDB.id,
-        postDB.creator_id,
-        postDB.content,
-        postDB.upvote,
-        postDB.downvote,
-        postDB.comments,
-        postDB.created_at,
-        postDB.updated_at
-      )
-      return post.toBusinessModel()
-    })
+    const postsDB: PostDB[] = await this.postDatabase.getPosts(undefined)
 
-    return posts
+    let allPosts: {}[] = []
+    for (const post of postsDB) {
+      const postCreator: UserDB = await this.postDatabase.getCreator(post.creator_id)
+      const commentsByPostId: CommentDB[] = await this.postDatabase.getCommentsByPostId(post.id)
+      
+      let commentsOfPost: {}[] = []
+      for (const comment of commentsByPostId) {
+        const commentCreator: UserDB = await this.postDatabase.getCreator(comment.creator_id)
+        commentsOfPost.push(
+          {
+            id: comment.id,
+            creatorNickname: commentCreator.nickname,
+            content: comment.content,
+            upvote: comment.upvote,
+            downvote: comment.downvote,
+            createdAt: comment.created_at,
+            updatedAt: comment.updated_at
+          }
+        )
+      }
+
+      allPosts.push(
+        {
+          id: post.id,
+          creatorNickname: postCreator.nickname,
+          content: post.content,
+          upvote: post.upvote,
+          downvote: post.downvote,
+          createdAt: post.created_at,
+          updatedAt: post.updated_at,
+          comments: commentsOfPost
+        }
+      )
+    }
+
+    return allPosts
   }
 
   public getPostById = async (input: GetPostByIdOutputDTO): Promise<{}> => {
@@ -69,8 +90,24 @@ export class PostBusiness {
       throw new BadRequestError("ERROR: Login failed.")
     }
 
-    const postCreator: UserDB = await this.postDatabase.getPostCreator(postDB.creator_id)
+    const postCreator: UserDB = await this.postDatabase.getCreator(postDB.creator_id)
     const commentsByPostId: CommentDB[] = await this.postDatabase.getCommentsByPostId(id)
+
+    let commentsWithCreator: {}[] = []
+    for (const comment of commentsByPostId) {
+      const commentCreator: UserDB = await this.postDatabase.getCreator(comment.creator_id)
+      commentsWithCreator.push(
+        {
+          id: comment.id,
+          creatorNickname: commentCreator.nickname,
+          content: comment.content,
+          upvote: comment.upvote,
+          downvote: comment.downvote,
+          created_at: comment.created_at,
+          updated_at: comment.updated_at
+        }
+      )
+    }
 
     const postWithComments = {
       id: postDB.id,
@@ -80,9 +117,11 @@ export class PostBusiness {
       downvote: postDB.downvote,
       createdAt: postDB.created_at,
       updatedAt: postDB.updated_at,
-      comments: commentsByPostId
+      comments: commentsWithCreator
     }
 
+    commentsWithCreator = []
+    
     return postWithComments
   }
 

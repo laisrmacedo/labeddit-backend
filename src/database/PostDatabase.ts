@@ -54,7 +54,7 @@ export class PostDatabase extends BaseDatabase {
     return result[0]
   }
 
-  public async getPostCreator(id: string): Promise<UserDB> {
+  public async getCreator(id: string): Promise<UserDB> {
     const result: UserDB[] = await BaseDatabase
     .connection(PostDatabase.TABLE_USERS)
     .where({ id })
