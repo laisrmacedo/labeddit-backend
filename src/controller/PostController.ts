@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PostBusiness } from "../business/PostBusiness";
-import { PostDTO } from "../dtos/postDTO";
+import { PostDTO } from "../dtos/PostDTO";
 import { BaseError } from "../errors/BaseError";
 
 export class PostController {

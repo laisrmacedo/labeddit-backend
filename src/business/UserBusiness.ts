@@ -1,5 +1,5 @@
 import { UserDatabase, UserDB } from "../database/UserDatabase"
-import { DeleteUserOutputDTO, EditUserOutputDTO, GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/userDTO";
+import { DeleteUserOutputDTO, EditUserOutputDTO, GetUsersOutputDTO, LoginOutputDTO, SignupOutputDTO } from "../dtos/UserDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";

@@ -1,7 +1,7 @@
 import { CommentDB } from "../database/CommentDatabase";
 import { PostDatabase, PostDB, postUpvoteDownvoteDB } from "../database/PostDatabase";
 import { UserDB } from "../database/UserDatabase";
-import { DeletePostOutputDTO, EditPostOutputDTO, CreatePostOutputDTO, GetPostsOutputDTO, UpvoteOrDownvotePostOutputDTO, GetPostByIdOutputDTO } from "../dtos/postDTO";
+import { DeletePostOutputDTO, EditPostOutputDTO, CreatePostOutputDTO, UpvoteOrDownvotePostOutputDTO, GetPostByIdOutputDTO } from "../dtos/PostDTO";
 import { BadRequestError } from "../errors/BadRequestError";
 import { ForbiddenError } from "../errors/ForbiddenError";
 import { NotFoundError } from "../errors/NotFoundError";
@@ -42,7 +42,7 @@ export class PostBusiness {
     for (const post of postsDB) {
       const postCreator: UserDB = await this.postDatabase.getCreator(post.creator_id)
       const commentsByPostId: CommentDB[] = await this.postDatabase.getCommentsByPostId(post.id)
-      
+
       let commentsOfPost: {}[] = []
       for (const comment of commentsByPostId) {
         const commentCreator: UserDB = await this.postDatabase.getCreator(comment.creator_id)
@@ -121,7 +121,7 @@ export class PostBusiness {
     }
 
     commentsWithCreator = []
-    
+
     return postWithComments
   }
 
