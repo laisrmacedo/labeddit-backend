@@ -53,6 +53,14 @@ export class CommentDatabase extends BaseDatabase {
       .insert(comment)
   }
 
+  public async getCommentsByPostId(id: string): Promise<CommentDB[]> {
+    const result: CommentDB[] = await BaseDatabase
+    .connection(CommentDatabase.TABLE_COMMENTS)
+    .where({post_id: id})
+    
+    return result
+  }
+
   public async updateQuantityComments(postId: string, value: number): Promise<void> {
     await BaseDatabase
     .connection(CommentDatabase.TABLE_POSTS)

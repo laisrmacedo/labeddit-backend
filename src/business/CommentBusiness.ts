@@ -86,7 +86,8 @@ export class CommentBusiness {
     )
 
     await this.commentDatabase.insertComment(newComment.toDBModel())
-    await this.commentDatabase.updateQuantityComments(postDB.id, postDB.comments + 1)
+    const commentsByPostId = await this.commentDatabase.getCommentsByPostId(postDB.id) 
+    await this.commentDatabase.updateQuantityComments(postDB.id, commentsByPostId.length)
   }
 
   public editComment = async (input: EditCommentOutputDTO): Promise<void> => {
