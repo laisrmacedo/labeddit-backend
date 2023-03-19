@@ -152,7 +152,6 @@ export class PostBusiness {
 
     await this.postDatabase.insertPost(newPost.toDBModel())
   }
-
   
   public upvoteOrDownvotePost = async (input: UpvoteOrDownvotePostOutputDTO): Promise<void> => {
     const { idToVote, token, vote } = input
@@ -214,7 +213,7 @@ export class PostBusiness {
       }
       
       await this.postDatabase.updatePost(idToVote, post.toDBModel())
-    }
+  }
 
     
     //=====================================
