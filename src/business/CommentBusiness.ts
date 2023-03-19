@@ -70,8 +70,8 @@ export class CommentBusiness {
     }
 
     //characters quantity
-    if(content.length > 300){
-      throw new BadRequestError("ERROR: The maximum post length is 300 characters.")
+    if(content.length > 280){
+      throw new BadRequestError("ERROR: The maximum post length is 280 characters.")
     }
 
     const newComment = new Comment(
