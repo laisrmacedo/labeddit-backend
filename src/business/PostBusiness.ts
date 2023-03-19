@@ -131,7 +131,7 @@ export class PostBusiness {
     //login ckeck
     const payload = this.tokenManager.getPayload(token)
     if (payload === null) {
-      throw new BadRequestError("ERROR: Login failed")
+      throw new BadRequestError("ERROR: Login failed.")
     }
 
     //characters quantity
