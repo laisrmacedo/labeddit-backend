@@ -3,8 +3,9 @@ import { PostDatabaseMock } from '../mocks/PostDatabaseMock'
 import { IdGeneratorMock } from '../mocks/IdGeneratorMock'
 import { TokenManagerMock } from '../mocks/TokenManagerMock'
 import { BadRequestError } from '../../src/errors/BadRequestError'
+import { NotFoundError } from '../../src/errors/NotFoundError'
 
-describe('getPosts', () => {
+describe('getPostById', () => {
   const postBusiness = new PostBusiness(
     new PostDatabaseMock(),
     new TokenManagerMock(),
@@ -12,10 +13,13 @@ describe('getPosts', () => {
   )
 
   it('success', async () => {
-    const token = "token-mock-normal"
+    const input = {
+      id : "id-mock",
+      token : "token-mock-normal"
+    }
 
-    const output = await postBusiness.getPosts(token)
-    expect(output).toEqual([{
+    const output = await postBusiness.getPostById(input)
+    expect(output).toEqual({
       id: "id-mock",
       creatorNickname: "normal.mock",
       content: "post-mock",
@@ -32,15 +36,35 @@ describe('getPosts', () => {
         createdAt: "2023-01-01",
         updatedAt: "2023-02-01"
       }]
-    }])
+    })
+  })
+
+  it('error test: id not found', async () => {
+    expect.assertions(2)
+    try {
+      const input = {
+        id : "xxx",
+        token : "token-mock-normal"
+      }
+  
+      await postBusiness.getPostById(input)
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        expect(error.message).toBe("ERROR: 'id' not found.")
+        expect(error.statusCode).toBe(404)
+      }
+    }
   })
 
   it('error test: login failed', async () => {
     expect.assertions(2)
     try {
-      const token = 'xxx'
+      const input = {
+        id : "id-mock",
+        token : "xxx"
+      }
   
-      await postBusiness.getPosts(token)
+      await postBusiness.getPostById(input)
     } catch (error) {
       if (error instanceof BadRequestError) {
         expect(error.message).toBe("ERROR: Login failed.")
@@ -48,7 +72,4 @@ describe('getPosts', () => {
       }
     }
   })
-
-  it('success', async () => {})
-  
 })

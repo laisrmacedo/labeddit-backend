@@ -103,8 +103,8 @@ export class PostBusiness {
           content: comment.content,
           upvote: comment.upvote,
           downvote: comment.downvote,
-          created_at: comment.created_at,
-          updated_at: comment.updated_at
+          createdAt: comment.created_at,
+          updatedAt: comment.updated_at
         }
       )
     }
