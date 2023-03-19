@@ -1,10 +1,8 @@
 import { BaseDatabase } from "../../src/database/BaseDatabase";
 import { CommentDB } from "../../src/database/CommentDatabase"
 import { UserDB } from "../../src/database/UserDatabase";
-import { USER_ROLES } from "../../src/models/User";
-import { commentDBMock } from "../../tests/CommentBusiness/CommentDatabaseMock"
+import { commentDBMock } from "./CommentDatabaseMock"
 import { usersDBMock } from "./UserDatabaseMock";
-// import { UserDB } from "./UserDatabase";
 
 export interface PostDB {
   id: string,
@@ -23,7 +21,7 @@ export interface postUpvoteDownvoteDB {
   vote: number
 }
 
-const postDBMock: PostDB[] = [
+export const postDBMock: PostDB[] = [
   {
     id: "id-mock",
     creator_id: "id-mock",

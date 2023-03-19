@@ -5,7 +5,7 @@ import { TokenManagerMock } from '../mocks/TokenManagerMock'
 import { BadRequestError } from '../../src/errors/BadRequestError'
 import { NotFoundError } from '../../src/errors/NotFoundError'
 
-describe('createPost', () => {
+describe('upvoteOrDownvotePost', () => {
   const postBusiness = new PostBusiness(
     new PostDatabaseMock(),
     new TokenManagerMock(),
