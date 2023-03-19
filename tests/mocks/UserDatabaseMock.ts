@@ -11,7 +11,7 @@ export interface UserDB {
   created_at: string
 }
 
-const usersDBMock: UserDB[] = [
+export const usersDBMock: UserDB[] = [
   {
     id: "id-mock",
     nickname: "normal.mock",
