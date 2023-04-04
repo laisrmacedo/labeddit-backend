@@ -136,6 +136,30 @@ export class UserBusiness {
         return output
     }
 
+    public getUserById = async (input: GetUsersOutputDTO): Promise<UserBusinessModel | undefined> => {
+        const { token } = input
+
+        //permission check
+        const payload = this.tokenManager.getPayload(token)
+        if (payload === null) {
+            throw new BadRequestError("ERROR: Login failed.")
+        }
+
+        const foundUser : UserDB  | undefined = await this.userDatabase.findUserById(payload.id)
+        if(foundUser){
+            const user = new User(
+                foundUser.id,
+                foundUser.nickname,
+                foundUser.email,
+                foundUser.password,
+                foundUser.avatar,
+                foundUser.role,
+                foundUser.created_at
+            )
+            return user.toBusinessModel()
+        }
+    }
+
     //=====================================
     //ENDPOINTS NOT USED IN MOBILE VERSION
     //=====================================
