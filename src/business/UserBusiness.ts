@@ -245,23 +245,23 @@ export class UserBusiness {
         await this.userDatabase.updateUser(idToEdit, newUser)
     }
 
-    // public deleteUser = async (input: DeleteUserOutputDTO): Promise<void> => {
-    //     const { idToDelete, token } = input
+    public deleteUser = async (input: DeleteUserOutputDTO): Promise<void> => {
+        const { idToDelete, token } = input
 
-    //     const foundUser = await this.userDatabase.findUserById(idToDelete)
-    //     if (!foundUser) {
-    //         throw new NotFoundError("ERROR: 'id' not found.")
-    //     }
+        const foundUser = await this.userDatabase.findUserById(idToDelete)
+        if (!foundUser) {
+            throw new NotFoundError("ERROR: 'id' not found.")
+        }
 
-    //     const payload = this.tokenManager.getPayload(token)
-    //     if (payload === null) {
-    //         throw new BadRequestError("ERROR: Login failed.")
-    //     }
+        const payload = this.tokenManager.getPayload(token)
+        if (payload === null) {
+            throw new BadRequestError("ERROR: Login failed.")
+        }
 
-    //     if (payload.role !== USER_ROLES.ADMIN && foundUser.id !== payload.id) {
-    //         throw new ForbiddenError("ERROR: There's no permission to complete the request.")
-    //     }
+        if (payload.role !== USER_ROLES.ADMIN && foundUser.id !== payload.id) {
+            throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+        }
 
-    //     await this.userDatabase.deleteUser(idToDelete)
-    // }
+        await this.userDatabase.deleteUser(idToDelete)
+    }
 }

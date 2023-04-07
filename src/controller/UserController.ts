@@ -118,23 +118,23 @@ export class UserController {
     }
   }
 
-  // public deleteUser = async (req: Request, res: Response): Promise<void> => {
-  //   try {
-  //     const input = this.userDTO.deleteUserInput(
-  //       req.params.id,
-  //       req.headers.authorization
-  //     )
+  public deleteUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const input = this.userDTO.deleteUserInput(
+        req.params.id,
+        req.headers.authorization
+      )
 
-  //     await this.userBusiness.deleteUser(input)
-  //     res.status(200).end()
+      await this.userBusiness.deleteUser(input)
+      res.status(200).end()
 
-  //   } catch (error) {
-  //     console.log(error)
-  //     if (error instanceof BaseError) {
-  //       res.status(error.statusCode).send(error.message)
-  //     } else {
-  //       res.send("Unexpected error")
-  //     }
-  //   }
-  // }
+    } catch (error) {
+      console.log(error)
+      if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.send("Unexpected error")
+      }
+    }
+  }
 }
