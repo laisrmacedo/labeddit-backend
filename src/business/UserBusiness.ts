@@ -88,7 +88,7 @@ export class UserBusiness {
             nickname,
             email,
             await this.hashManager.hash(password),
-            "https://picsum.photos/id/447/200/200?grayscale&blur=2",
+            "https://icon-library.com/images/generic-profile-icon/generic-profile-icon-8.jpg",
             USER_ROLES.NORMAL,
             new Date().toISOString()
         )
