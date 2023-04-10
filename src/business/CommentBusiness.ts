@@ -197,25 +197,25 @@ export class CommentBusiness {
   //   await this.commentDatabase.updateComment(idToEdit, newComment.toDBModel())
   // }
 
-  // public deleteComment = async (input: DeleteCommentOutputDTO): Promise<void> => {
-  //   const {idToDelete, token} = input
+  public deleteComment = async (input: DeleteCommentOutputDTO): Promise<void> => {
+    const {idToDelete, token} = input
 
-  //   const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(idToDelete)
-  //   if(!commentDB){
-  //     throw new NotFoundError("ERROR: 'idToDelete' not found.")
-  //   }
+    const commentDB: CommentDB | undefined = await this.commentDatabase.getCommentById(idToDelete)
+    if(!commentDB){
+      throw new NotFoundError("ERROR: 'idToDelete' not found.")
+    }
 
-  //   //login ckeck
-  //   const payload = this.tokenManager.getPayload(token)
-  //   if(payload === null){
-  //     throw new BadRequestError("ERROR: Login failed.")
-  //   }
+    //login ckeck
+    const payload = this.tokenManager.getPayload(token)
+    if(payload === null){
+      throw new BadRequestError("ERROR: Login failed.")
+    }
 
-  //   //permission check
-  //   if(payload.role !== USER_ROLES.ADMIN && commentDB.creator_id !== payload.id){
-  //     throw new ForbiddenError("ERROR: There's no permission to complete the request.")
-  //   }
+    //permission check
+    if(payload.role !== USER_ROLES.ADMIN && commentDB.creator_id !== payload.id){
+      throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+    }
 
-  //   await this.commentDatabase.deleteComment(idToDelete)
-  // }
+    await this.commentDatabase.deleteComment(idToDelete)
+  }
 }
