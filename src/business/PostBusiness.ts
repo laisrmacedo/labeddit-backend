@@ -105,12 +105,21 @@ export class PostBusiness {
 
     let commentsWithCreator: {}[] = []
     for (const comment of commentsByPostId) {
+      const commentDataVote = {
+        comment_id: comment.id,
+        user_id: payload.id,
+        vote: 3
+      }
+
+      const commentVote = await this.postDatabase.findCommentUpvoteDownvote(commentDataVote)
+
       const commentCreator: UserDB = await this.postDatabase.getCreator(comment.creator_id)
       commentsWithCreator.push(
         {
           id: comment.id,
           creatorNickname: commentCreator.nickname,
           content: comment.content,
+          commentVote: commentVote,
           upvote: comment.upvote,
           downvote: comment.downvote,
           createdAt: comment.created_at,
@@ -119,10 +128,20 @@ export class PostBusiness {
       )
     }
 
+    const postDataVote = {
+      post_id: id,
+      user_id: payload.id,
+      vote: 3
+    }
+
+    const postVote = await this.postDatabase.findPostUpvoteDownvote(postDataVote)
+
     const postWithComments = {
+      loggedUser: payload.nickname,
       id: postDB.id,
       creatorNickname: postCreator.nickname,
       content: postDB.content,
+      postVote: postVote,
       upvote: postDB.upvote,
       downvote: postDB.downvote,
       createdAt: postDB.created_at,

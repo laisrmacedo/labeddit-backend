@@ -1,5 +1,5 @@
 import { BaseDatabase } from "./BaseDatabase";
-import { CommentDB } from "./CommentDatabase";
+import { CommentDatabase, CommentDB, commentUpvoteDownvoteDB } from "./CommentDatabase";
 import { UserDB } from "./UserDatabase";
 
 export interface PostDB {
@@ -96,6 +96,22 @@ export class PostDatabase extends BaseDatabase {
     .select()
     .where({
       post_id: item.post_id,
+      user_id: item.user_id
+    })
+
+    if(result){
+      return result.vote === 1 ? "up" : "down"
+    }else{
+      return null
+    }
+  }
+
+  public async findCommentUpvoteDownvote(item: commentUpvoteDownvoteDB): Promise<string | null>{
+    const [result]: commentUpvoteDownvoteDB[] = await BaseDatabase
+    .connection(CommentDatabase.TABLE_COMMENT_UPVOTE_DOWNVOTE)
+    .select()
+    .where({
+      comment_id: item.comment_id,
       user_id: item.user_id
     })
 
