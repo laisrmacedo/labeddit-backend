@@ -9,32 +9,8 @@ export class PostController {
     private postBusiness: PostBusiness
   ){}
 
-  // public getPosts = async (req: Request, res: Response): Promise<void> => {
-  //   try {
-  //     const input = this.postDTO.getPostsInputDTO(
-  //       req.headers.authorization,
-  //       req.query.q
-  //     )
-
-  //     const output = await this.postBusiness.getPosts(input)
-  //     res.status(200).send(output)
-
-  //   } catch (error) {
-  //     console.log(error)
-  //     if (error instanceof BaseError) {
-  //       res.status(error.statusCode).send(error.message)
-  //     } else {
-  //       res.status(500).send("Unexpected error")
-  //     }
-  //   }
-  // }
-
   public getPosts = async (req: Request, res: Response): Promise<void> => {
     try {
-      // const input = this.postDTO.getPostsInputDTO(
-      //   req.headers.authorization,
-      //   req.query.q
-      // )
       const token = req.headers.authorization as string
 
       const output = await this.postBusiness.getPosts(token)
@@ -111,25 +87,25 @@ export class PostController {
   //   }
   // }
 
-  // public deletePost = async (req: Request, res: Response): Promise<void> => {
-  //   try {
-  //     const input = this.postDTO.deletePostInputDTO(
-  //       req.params.id,
-  //       req.headers.authorization
-  //     )
+  public deletePost = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const input = this.postDTO.deletePostInputDTO(
+        req.params.id,
+        req.headers.authorization
+      )
 
-  //     await this.postBusiness.deletePost(input)
-  //     res.status(200).end()
+      await this.postBusiness.deletePost(input)
+      res.status(200).end()
   
-  //   } catch (error) {
-  //     console.log(error)
-  //     if (error instanceof BaseError) {
-  //       res.status(error.statusCode).send(error.message)
-  //     } else {
-  //       res.status(500).send("Unexpected error")
-  //     }
-  //   }
-  // }
+    } catch (error) {
+      console.log(error)
+      if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message)
+      } else {
+        res.status(500).send("Unexpected error")
+      }
+    }
+  }
   
   public upvoteOrDownvotePost = async (req: Request, res: Response): Promise<void> => {
     try {

@@ -69,6 +69,7 @@ export class PostBusiness {
 
       allPosts.push(
         {
+          loggedUser: payload.nickname,
           id: post.id,
           creatorNickname: postCreator.nickname,
           content: post.content,
@@ -81,7 +82,7 @@ export class PostBusiness {
         }
       )
     }
-    // console.log(allPosts)
+    
     return allPosts
   }
 
@@ -269,25 +270,25 @@ export class PostBusiness {
     //   await this.postDatabase.updatePost(idToEdit, newPost.toDBModel())
     // }
   
-    // public deletePost = async (input: DeletePostOutputDTO): Promise<void> => {
-    //   const { idToDelete, token } = input
+    public deletePost = async (input: DeletePostOutputDTO): Promise<void> => {
+      const { idToDelete, token } = input
   
-    //   const postDB: PostDB | undefined = await this.postDatabase.getPostById(idToDelete)
-    //   if (!postDB) {
-    //     throw new NotFoundError("ERROR: 'idToDelete' not found.")
-    //   }
+      const postDB: PostDB | undefined = await this.postDatabase.getPostById(idToDelete)
+      if (!postDB) {
+        throw new NotFoundError("ERROR: 'idToDelete' not found.")
+      }
   
-    //   //login ckeck
-    //   const payload = this.tokenManager.getPayload(token)
-    //   if (payload === null) {
-    //     throw new BadRequestError("ERROR: Login failed.")
-    //   }
+      //login ckeck
+      const payload = this.tokenManager.getPayload(token)
+      if (payload === null) {
+        throw new BadRequestError("ERROR: Login failed.")
+      }
   
-    //   //permission check
-    //   if (payload.role !== USER_ROLES.ADMIN && postDB.creator_id !== payload.id) {
-    //     throw new ForbiddenError("ERROR: There's no permission to complete the request.")
-    //   }
+      //permission check
+      if (payload.role !== USER_ROLES.ADMIN && postDB.creator_id !== payload.id) {
+        throw new ForbiddenError("ERROR: There's no permission to complete the request.")
+      }
   
-    //   await this.postDatabase.deletePost(idToDelete)
-    // }
+      await this.postDatabase.deletePost(idToDelete)
+    }
   }
