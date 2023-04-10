@@ -59,11 +59,20 @@ export class PostBusiness {
         )
       }
 
+      const postDataVote = {
+        post_id: post.id,
+        user_id: payload.id,
+        vote: 3
+      }
+
+      const postVote = await this.postDatabase.findPostUpvoteDownvote(postDataVote)
+
       allPosts.push(
         {
           id: post.id,
           creatorNickname: postCreator.nickname,
           content: post.content,
+          vote: postVote,
           upvote: post.upvote,
           downvote: post.downvote,
           createdAt: post.created_at,
@@ -72,7 +81,7 @@ export class PostBusiness {
         }
       )
     }
-
+    // console.log(allPosts)
     return allPosts
   }
 
