@@ -145,7 +145,7 @@ export class UserDTO {
     }
 
     if (avatar !== undefined && typeof avatar !== "string") {
-      throw new BadRequestError("ERROR: 'password' must be of type string.")
+      throw new BadRequestError("ERROR: 'avatar' must be of type string.")
     }
 
     const dto: EditUserOutputDTO = {
