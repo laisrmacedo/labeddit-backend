@@ -1,4 +1,6 @@
-<h1 align="center"> LabEddit </h1>
+<p align="center">
+  <img src="https://github.com/laisrmacedo/labeddit-frontend/blob/main/labeddit/src/assets/logoLogin.png?raw=true" />
+</p>
 <h3 align="center">BACKEND PROJECT</h3>
 <br>
 
